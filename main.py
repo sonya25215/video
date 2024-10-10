@@ -51,6 +51,12 @@ def update_progress(value):
   progress_bar['value'] = value
   root.update_idletasks()
 
+#функция для завершения 
+def processing_done():
+  messagebox.showinfo("Обработка завершена", "Видео успешно обработано!")
+  close_button.config(state=tk.NORMAL)
+  process_button.config(state=tk.NORMAL)
+
 #запуск процесса обработки в отдельном потоке
 def start_processing():
   input_video_path = filedialog.askopenfilename(filetypes=[("Video files", "*.mp4")])
