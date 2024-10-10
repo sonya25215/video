@@ -9,7 +9,7 @@ import os
 hog = cv2.HOGDescriptor()
 hog.setSVMDetector(cv2.HOGDescriptor_getDefaultPeopleDetector())
 
-def process_video(input_video_path, output_video_path, min_object_size, progress_callback):
+def process_video(input_video_path, output_video_path, min_object_size, progress_callback, frame_skip_interval=10):
   cap=cv2.VideoCapture(input_video_path)
 
   if not cap.isOpened():
@@ -24,18 +24,21 @@ def process_video(input_video_path, output_video_path, min_object_size, progress
   out_temp = cv2.VideoWriter(output_video_path, cv2.VideoWriter_fourcc(*'mp4v'), fps, (frame_width, frame_height))
 
   frame_count = 0
+  person_in_frame = False
 
   while cap.isOpened():
     ret, frame = cap.read()
     if not ret:
       break
 
-    #детект людей в кадре
-    boxes, _ = hog.detectMultiScale(frame, winStride=(8, 8))
-    boxes = [box for box in boxes if box[2] * box[3] > min_object_size]
-    #при обнаружении сохраняем кадр
-    if boxes:
-      out_temp.write(frame)
+    if frame_count % frame_skip_interval == 0:
+      #детект людей в кадре
+      boxes, _ = hog.detectMultiScale(frame, winStride=(8, 8))
+      boxes = [box for box in boxes if box[2] * box[3] > min_object_size]
+      #при обнаружении сохраняем кадр
+      if boxes:
+        out_temp.write(frame)
+        person_in_frame = True
     #обновление прогресса
     progress_callback(frame_count / total_frames * 100)
 
